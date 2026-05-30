@@ -2,16 +2,13 @@
 class logic
 {
 public:
-    void setup();
+    void clear_board();
 
-    bool set_x(int x, int y);
+    int get_shape(int row, int col);
 
-    bool set_o(int x, int y);
-
-    void done(bool& tie, bool& xwon, bool& owon);
-
-    void draw_existing_moves();
+    void set_shape(int row, int col, int shape);
 
 private:
-    char board[3][3];
+    int pattern[5][5];
+    bool already_played[5][5];
 };
