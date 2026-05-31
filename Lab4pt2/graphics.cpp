@@ -1,3 +1,4 @@
+// Gilberto Miranda
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
@@ -7,18 +8,34 @@
 #include <cstdlib>
 #include "logic.h"
 
+// Draw the 5x5 game board
 void draw_board();
+
+// Draw the correct shape based on its number
 void draw_shape(int shape, int x, int y);
+
+// Draw all revealed shapes on the board
 void draw_all_shapes(logic& game_logic);
 
+// Draw a circle shape
 void draw_circle_shape(int x, int y);
+
+// Draw a rectangle shape
 void draw_rectangle_shape(int x, int y);
+
+// Draw a triangle shape
 void draw_triangle_shape(int x, int y);
+
+// Draw a diamond shape
 void draw_diamond_shape(int x, int y);
+
+// Draw an oval shape
 void draw_oval_shape(int x, int y);
 
+// Display game information and win message
 void draw_status(logic& game_logic);
 
+// Main game function
 int main(void)
 {
     logic game_logic;
@@ -29,6 +46,8 @@ int main(void)
 
     int firstRow = -1;
     int firstCol = -1;
+    bool gameWon = false;
+    bool askPlayAgain = false;
 
     ALLEGRO_DISPLAY* Screen = NULL;
     int width = 640, height = 480;
@@ -55,6 +74,19 @@ int main(void)
         return (-1);
     }
 
+    if (!al_install_keyboard())
+    {
+        al_show_native_message_box(
+            Screen,
+            "Error!",
+            "Failed to initialize keyboard!",
+            0,
+            0,
+            ALLEGRO_MESSAGEBOX_ERROR);
+
+        return -1;
+    }
+
     al_init_primitives_addon();
     al_init_font_addon();
     al_init_ttf_addon();
@@ -67,6 +99,7 @@ int main(void)
 
     al_register_event_source(event_queue, al_get_display_event_source(Screen));
     al_register_event_source(event_queue, al_get_mouse_event_source());
+    al_register_event_source(event_queue,al_get_keyboard_event_source());
 
     game_logic.clear_board();
     game_logic.random_create();
@@ -95,6 +128,7 @@ int main(void)
                 mouseY >= startY &&
                 mouseY < startY + 5 * cellSize)
             {
+                // Convert mouse position into a board row and column
                 int col = (mouseX - startX) / cellSize;
                 int row = (mouseY - startY) / cellSize;
 
@@ -116,8 +150,10 @@ int main(void)
                         draw_all_shapes(game_logic);
                         al_flip_display();
 
+                        // Pause so the player can see both cards
                         al_rest(5.0);
 
+                        // Hide cards if they do not match
                         if (!game_logic.is_match(
                             firstRow,
                             firstCol,
@@ -134,12 +170,41 @@ int main(void)
             }
         }
 
+        else if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+        {
+            if (gameWon)
+            {
+                // Reset the game if Y is pressed
+                if (ev.keyboard.keycode == ALLEGRO_KEY_Y)
+                {
+                    game_logic.clear_board();
+                    game_logic.random_create();
+
+                    firstCardSelected = false;
+                    firstRow = -1;
+                    firstCol = -1;
+
+                    gameWon = false;
+                }
+                // Close the game if N is pressed
+                else if (ev.keyboard.keycode == ALLEGRO_KEY_N)
+                {
+                    done = true;
+                }
+            }
+        }
+
         al_clear_to_color(al_map_rgb(0, 0, 0));
 
         draw_board();
         draw_all_shapes(game_logic);
         draw_status(game_logic);
        
+        if (game_logic.count_matches() == 12)
+        {
+            gameWon = true;
+        }
+
         al_flip_display();
     }
 
@@ -323,5 +388,13 @@ void draw_status(logic& game_logic)
             140,
             0,
             "YOU WIN!");
+
+        al_draw_text(
+            font,
+            al_map_rgb(255, 255, 255),
+            470,
+            170,
+            0,
+            "Play Again? Y/N");
     }
 }
