@@ -17,12 +17,18 @@ void draw_triangle_shape(int x, int y);
 void draw_diamond_shape(int x, int y);
 void draw_oval_shape(int x, int y);
 
+void draw_status(logic& game_logic);
+
 int main(void)
 {
     logic game_logic;
     int mouseX = 0;
     int mouseY = 0;
    
+    bool firstCardSelected = false;
+
+    int firstRow = -1;
+    int firstCol = -1;
 
     ALLEGRO_DISPLAY* Screen = NULL;
     int width = 640, height = 480;
@@ -92,7 +98,39 @@ int main(void)
                 int col = (mouseX - startX) / cellSize;
                 int row = (mouseY - startY) / cellSize;
 
-                game_logic.reveal(row, col);
+                if (!game_logic.is_revealed(row, col))
+                {
+                    game_logic.reveal(row, col);
+
+                    if (!firstCardSelected)
+                    {
+                        firstCardSelected = true;
+
+                        firstRow = row;
+                        firstCol = col;
+                    }
+                    else
+                    {
+                        al_clear_to_color(al_map_rgb(0, 0, 0));
+                        draw_board();
+                        draw_all_shapes(game_logic);
+                        al_flip_display();
+
+                        al_rest(5.0);
+
+                        if (!game_logic.is_match(
+                            firstRow,
+                            firstCol,
+                            row,
+                            col))
+                        {
+                            game_logic.hide(firstRow, firstCol);
+                            game_logic.hide(row, col);
+                        }
+
+                        firstCardSelected = false;
+                    }
+                }
             }
         }
 
@@ -100,13 +138,8 @@ int main(void)
 
         draw_board();
         draw_all_shapes(game_logic);
-
+        draw_status(game_logic);
        
-
- 
-  
-
-
         al_flip_display();
     }
 
@@ -251,5 +284,44 @@ void draw_all_shapes(logic& game_logic)
                 draw_shape(shape, centerX, centerY);
             }
         }
+    }
+}
+
+void draw_status(logic& game_logic)
+{
+    ALLEGRO_FONT* font =
+        al_create_builtin_font();
+
+    int matches = game_logic.count_matches();
+
+    int remaining = 12 - matches;
+
+    al_draw_textf(
+        font,
+        al_map_rgb(255, 255, 255),
+        470,
+        60,
+        0,
+        "Pairs Found: %d",
+        matches);
+
+    al_draw_textf(
+        font,
+        al_map_rgb(255, 255, 255),
+        470,
+        90,
+        0,
+        "Remaining: %d",
+        remaining);
+
+    if (matches == 12)
+    {
+        al_draw_text(
+            font,
+            al_map_rgb(0, 255, 0),
+            470,
+            140,
+            0,
+            "YOU WIN!");
     }
 }

@@ -17,6 +17,8 @@ public:
 
     void hide(int row, int col);
 
+    int count_matches();
+
 private:
     int pattern[5][5];
     bool already_played[5][5];

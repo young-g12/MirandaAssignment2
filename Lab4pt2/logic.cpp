@@ -68,3 +68,32 @@ void logic::reveal(int row, int col)
 {
     already_played[row][col] = true;
 }
+
+bool logic::is_match(int row1, int col1, int row2, int col2)
+{
+    return pattern[row1][col1] == pattern[row2][col2];
+}
+
+void logic::hide(int row, int col)
+{
+    already_played[row][col] = false;
+}
+
+int logic::count_matches()
+{
+    int revealedCount = 0;
+
+    for (int row = 0; row < 5; row++)
+    {
+        for (int col = 0; col < 5; col++)
+        {
+            if (already_played[row][col] &&
+                pattern[row][col] != -1)
+            {
+                revealedCount++;
+            }
+        }
+    }
+
+    return revealedCount / 2;
+}
