@@ -9,6 +9,7 @@
 
 void draw_board();
 void draw_shape(int shape, int x, int y);
+void draw_all_shapes(logic& game_logic);
 
 void draw_circle_shape(int x, int y);
 void draw_rectangle_shape(int x, int y);
@@ -83,6 +84,7 @@ int main(void)
         al_clear_to_color(al_map_rgb(0, 0, 0));
 
         draw_board();
+        draw_all_shapes(game_logic);
 
        
 
@@ -210,5 +212,28 @@ void draw_shape(int shape, int x, int y)
     case 4:
         draw_oval_shape(x, y);
         break;
+    }
+}
+
+void draw_all_shapes(logic& game_logic)
+{
+    int startX = 50;
+    int startY = 50;
+    int cellSize = 80;
+
+    for (int row = 0; row < 5; row++)
+    {
+        for (int col = 0; col < 5; col++)
+        {
+            int shape = game_logic.get_shape(row, col);
+
+            if (shape != -1)
+            {
+                int centerX = startX + col * cellSize + cellSize / 2;
+                int centerY = startY + row * cellSize + cellSize / 2;
+
+                draw_shape(shape, centerX, centerY);
+            }
+        }
     }
 }
