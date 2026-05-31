@@ -8,6 +8,8 @@ public:
 
     void set_shape(int row, int col, int shape);
 
+    void random_create();
+
 private:
     int pattern[5][5];
     bool already_played[5][5];

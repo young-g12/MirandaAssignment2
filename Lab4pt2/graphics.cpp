@@ -8,6 +8,13 @@
 #include "logic.h"
 
 void draw_board();
+void draw_shape(int shape, int x, int y);
+
+void draw_circle_shape(int x, int y);
+void draw_rectangle_shape(int x, int y);
+void draw_triangle_shape(int x, int y);
+void draw_diamond_shape(int x, int y);
+void draw_oval_shape(int x, int y);
 
 int main(void)
 {
@@ -53,6 +60,7 @@ int main(void)
     al_register_event_source(event_queue, al_get_mouse_event_source());
 
     game_logic.clear_board();
+    game_logic.random_create();
 
     while (!done)
     {
@@ -123,5 +131,84 @@ void draw_board()
     }
 }
 
+void draw_circle_shape(int x, int y)
+{
+    al_draw_circle(x, y, 25,
+        al_map_rgb(255, 255, 0), 3);
+}
 
+void draw_rectangle_shape(int x, int y)
+{
+    al_draw_rectangle(
+        x - 25,
+        y - 25,
+        x + 25,
+        y + 25,
+        al_map_rgb(0, 255, 0),
+        3);
+}
 
+void draw_triangle_shape(int x, int y)
+{
+    al_draw_triangle(
+        x,
+        y - 30,
+        x - 25,
+        y + 25,
+        x + 25,
+        y + 25,
+        al_map_rgb(255, 0, 0),
+        3);
+}
+
+void draw_diamond_shape(int x, int y)
+{
+    al_draw_line(x, y - 30, x + 30, y,
+        al_map_rgb(0, 255, 255), 3);
+
+    al_draw_line(x + 30, y, x, y + 30,
+        al_map_rgb(0, 255, 255), 3);
+
+    al_draw_line(x, y + 30, x - 30, y,
+        al_map_rgb(0, 255, 255), 3);
+
+    al_draw_line(x - 30, y, x, y - 30,
+        al_map_rgb(0, 255, 255), 3);
+}
+
+void draw_oval_shape(int x, int y)
+{
+    al_draw_ellipse(
+        x,
+        y,
+        35,
+        20,
+        al_map_rgb(255, 0, 255),
+        3);
+}
+
+void draw_shape(int shape, int x, int y)
+{
+    switch (shape % 5)
+    {
+    case 0:
+        draw_circle_shape(x, y);
+        break;
+
+    case 1:
+        draw_rectangle_shape(x, y);
+        break;
+
+    case 2:
+        draw_triangle_shape(x, y);
+        break;
+
+    case 3:
+        draw_diamond_shape(x, y);
+        break;
+
+    case 4:
+        draw_oval_shape(x, y);
+        break;
+    }
+}
