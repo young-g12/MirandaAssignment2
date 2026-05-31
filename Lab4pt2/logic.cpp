@@ -58,3 +58,13 @@ void logic::random_create()
         }
     }
 }
+
+bool logic::is_revealed(int row, int col)
+{
+    return already_played[row][col];
+}
+
+void logic::reveal(int row, int col)
+{
+    already_played[row][col] = true;
+}

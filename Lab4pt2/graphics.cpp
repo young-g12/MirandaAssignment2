@@ -20,6 +20,8 @@ void draw_oval_shape(int x, int y);
 int main(void)
 {
     logic game_logic;
+    int mouseX = 0;
+    int mouseY = 0;
    
 
     ALLEGRO_DISPLAY* Screen = NULL;
@@ -75,9 +77,22 @@ int main(void)
         }
         else if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
         {
-            if (ev.mouse.button & 1)
+            mouseX = ev.mouse.x;
+            mouseY = ev.mouse.y;
+
+            int startX = 50;
+            int startY = 50;
+            int cellSize = 80;
+
+            if (mouseX >= startX &&
+                mouseX < startX + 5 * cellSize &&
+                mouseY >= startY &&
+                mouseY < startY + 5 * cellSize)
             {
- 
+                int col = (mouseX - startX) / cellSize;
+                int row = (mouseY - startY) / cellSize;
+
+                game_logic.reveal(row, col);
             }
         }
 
@@ -227,7 +242,8 @@ void draw_all_shapes(logic& game_logic)
         {
             int shape = game_logic.get_shape(row, col);
 
-            if (shape != -1)
+            if (shape != -1 &&
+                game_logic.is_revealed(row, col))
             {
                 int centerX = startX + col * cellSize + cellSize / 2;
                 int centerY = startY + row * cellSize + cellSize / 2;
