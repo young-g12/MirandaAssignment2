@@ -12,3 +12,13 @@ void logic::clear_board()
         }
     }
 }
+
+int logic::get_shape(int row, int col)
+{
+    return pattern[row][col];
+}
+
+void logic::set_shape(int row, int col, int shape)
+{
+    pattern[row][col] = shape;
+}

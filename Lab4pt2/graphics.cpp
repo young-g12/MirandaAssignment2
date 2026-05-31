@@ -7,24 +7,15 @@
 #include <cstdlib>
 #include "logic.h"
 
-void set_graphics_x_o(int x, int y, logic& game_logic, int& turn);
 void draw_board();
-void draw_x(int x, int y);
-void draw_o(int x, int y);
-void game_message(bool& gameover, logic& game_logic);
-void turn_xo(int x, int y, int& turn, int boardx, int boardy, logic& game_logic);
-void computer_turn(logic& game_logic, int& turn);
 
 int main(void)
 {
     logic game_logic;
-    int posX = 0, posY = 0;
-    bool gameover = false;
+   
 
     ALLEGRO_DISPLAY* Screen = NULL;
     int width = 640, height = 480;
-
-    int turn = 0;
 
     srand(time(NULL));
 
@@ -52,7 +43,7 @@ int main(void)
     al_init_font_addon();
     al_init_ttf_addon();
 
-    bool draw = false, done = false;
+    bool done = false;
 
     ALLEGRO_EVENT_QUEUE* event_queue = NULL;
 
@@ -61,9 +52,9 @@ int main(void)
     al_register_event_source(event_queue, al_get_display_event_source(Screen));
     al_register_event_source(event_queue, al_get_mouse_event_source());
 
-    game_logic.setup();
+    game_logic.clear_board();
 
-    while (!done && !gameover)
+    while (!done)
     {
         ALLEGRO_EVENT ev;
 
@@ -75,12 +66,9 @@ int main(void)
         }
         else if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
         {
-            if ((ev.mouse.button & 1) && turn == 0)
+            if (ev.mouse.button & 1)
             {
-                posX = ev.mouse.x;
-                posY = ev.mouse.y;
-
-                draw = true;
+ 
             }
         }
 
@@ -88,23 +76,11 @@ int main(void)
 
         draw_board();
 
-        game_logic.draw_existing_moves();
+       
 
-        if (draw)
-        {
-            set_graphics_x_o(posX, posY, game_logic, turn);
+ 
+  
 
-            draw = false;
-        }
-
-        game_message(gameover, game_logic);
-
-        if (!gameover && turn == 1)
-        {
-            computer_turn(game_logic, turn);
-
-            game_message(gameover, game_logic);
-        }
 
         al_flip_display();
     }
@@ -117,150 +93,35 @@ int main(void)
     return 0;
 }
 
+
 void draw_board()
 {
-    al_draw_line(0, 375, 640, 375, al_map_rgb(255, 0, 0), 2);
-    al_draw_filled_rectangle(0, 376, 640, 480, al_map_rgb(200, 200, 200));
+    int startX = 50;
+    int startY = 50;
+    int cellSize = 80;
 
-    al_draw_line(0, 125, 640, 125, al_map_rgb(255, 255, 255), 2);
-    al_draw_line(0, 250, 640, 250, al_map_rgb(255, 255, 255), 2);
-
-    al_draw_line(213, 0, 213, 375, al_map_rgb(255, 255, 255), 2);
-    al_draw_line(426, 0, 426, 375, al_map_rgb(255, 255, 255), 2);
-}
-
-void draw_x(int x, int y)
-{
-    al_draw_line(x - 106, y - 62, x + 106, y + 62, al_map_rgb(255, 0, 0), 2);
-    al_draw_line(x - 106, y + 62, x + 106, y - 62, al_map_rgb(255, 0, 0), 2);
-}
-
-void draw_o(int x, int y)
-{
-    al_draw_circle(x, y, 62, al_map_rgb(255, 255, 0), 4);
-}
-
-void turn_xo(int x, int y, int& turn, int boardx, int boardy, logic& game_logic)
-{
-    if (turn == 0)
+    for (int i = 0; i <= 5; i++)
     {
-        if (game_logic.set_x(boardx, boardy))
-        {
-            draw_x(x, y);
+        al_draw_line(
+            startX,
+            startY + i * cellSize,
+            startX + 5 * cellSize,
+            startY + i * cellSize,
+            al_map_rgb(255, 255, 255),
+            2);
+    }
 
-            turn = 1;
-        }
+    for (int i = 0; i <= 5; i++)
+    {
+        al_draw_line(
+            startX + i * cellSize,
+            startY,
+            startX + i * cellSize,
+            startY + 5 * cellSize,
+            al_map_rgb(255, 255, 255),
+            2);
     }
 }
 
-void set_graphics_x_o(int x, int y, logic& game_logic, int& turn)
-{
-    if ((x < 213) && (y < 125))
-    {
-        turn_xo(106, 62, turn, 0, 0, game_logic);
-    }
-    else if ((x > 213) && (x < 426) && (y < 125))
-    {
-        turn_xo(319, 62, turn, 0, 1, game_logic);
-    }
-    else if ((x > 426) && (y < 125))
-    {
-        turn_xo(533, 62, turn, 0, 2, game_logic);
-    }
-    else if ((x < 213) && (y > 125) && (y < 250))
-    {
-        turn_xo(106, 186, turn, 1, 0, game_logic);
-    }
-    else if ((x > 213) && (x < 426) && (y > 125) && (y < 250))
-    {
-        turn_xo(319, 186, turn, 1, 1, game_logic);
-    }
-    else if ((x > 426) && (y > 125) && (y < 250))
-    {
-        turn_xo(533, 186, turn, 1, 2, game_logic);
-    }
-    else if ((x < 213) && (y > 250) && (y < 375))
-    {
-        turn_xo(106, 314, turn, 2, 0, game_logic);
-    }
-    else if ((x > 213) && (x < 426) && (y > 250) && (y < 375))
-    {
-        turn_xo(319, 314, turn, 2, 1, game_logic);
-    }
-    else if ((x > 426) && (y > 250) && (y < 375))
-    {
-        turn_xo(533, 314, turn, 2, 2, game_logic);
-    }
-}
 
-void computer_turn(logic& game_logic, int& turn)
-{
-    int row;
-    int col;
 
-    bool placed = false;
-
-    while (!placed)
-    {
-        row = rand() % 3;
-        col = rand() % 3;
-
-        if (game_logic.set_o(row, col))
-        {
-            placed = true;
-
-            if (row == 0 && col == 0)
-                draw_o(106, 62);
-            else if (row == 0 && col == 1)
-                draw_o(319, 62);
-            else if (row == 0 && col == 2)
-                draw_o(533, 62);
-            else if (row == 1 && col == 0)
-                draw_o(106, 186);
-            else if (row == 1 && col == 1)
-                draw_o(319, 186);
-            else if (row == 1 && col == 2)
-                draw_o(533, 186);
-            else if (row == 2 && col == 0)
-                draw_o(106, 314);
-            else if (row == 2 && col == 1)
-                draw_o(319, 314);
-            else if (row == 2 && col == 2)
-                draw_o(533, 314);
-
-            turn = 0;
-        }
-    }
-}
-
-void game_message(bool& gameover, logic& game_logic)
-{
-    bool xwon = false, owon = false, tie = false;
-
-    game_logic.done(tie, xwon, owon);
-
-    ALLEGRO_FONT* font = al_load_font("GROBOLD.ttf", 24, 0);
-
-    if (tie == true)
-    {
-        al_draw_text(font, al_map_rgb(255, 255, 255), 1, 400, ALLEGRO_ALIGN_LEFT, "The game is a tie -- screen will close shortly");
-
-        gameover = true;
-    }
-    else if (xwon == true)
-    {
-        al_draw_text(font, al_map_rgb(255, 255, 255), 1, 400, ALLEGRO_ALIGN_LEFT, "X won the game-- screen will close shortly");
-
-        gameover = true;
-    }
-    else if (owon == true)
-    {
-        al_draw_text(font, al_map_rgb(255, 255, 255), 1, 400, ALLEGRO_ALIGN_LEFT, "O won the game-- screen will close shortly");
-
-        gameover = true;
-    }
-    else
-    {
-        al_draw_text(font, al_map_rgb(255, 255, 255), 1, 400, ALLEGRO_ALIGN_LEFT, "Pick a Square");
-    }
-}
