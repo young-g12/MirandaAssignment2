@@ -30,7 +30,12 @@ public:
     // Count the number of matched pairs
     int count_matches();
 
+    bool is_matched(int row, int col);
+
+    void set_matched(int row, int col);
+
 private:
     int pattern[5][5];
     bool already_played[5][5];
+    bool matched[5][5];
 };

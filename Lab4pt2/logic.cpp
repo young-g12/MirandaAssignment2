@@ -15,6 +15,7 @@ void logic::clear_board()
         {
             pattern[i][j] = -1;
             already_played[i][j] = false;
+            matched[i][j] = false;
         }
     }
 }
@@ -96,19 +97,28 @@ void logic::hide(int row, int col)
 // Count the number of matched pairs
 int logic::count_matches()
 {
-    int revealedCount = 0;
+    int count = 0;
 
     for (int row = 0; row < 5; row++)
     {
         for (int col = 0; col < 5; col++)
         {
-            if (already_played[row][col] &&
-                pattern[row][col] != -1)
+            if (matched[row][col])
             {
-                revealedCount++;
+                count++;
             }
         }
     }
 
-    return revealedCount / 2;
+    return count / 2;
+}
+
+bool logic::is_matched(int row, int col)
+{
+    return matched[row][col];
+}
+
+void logic::set_matched(int row, int col)
+{
+    matched[row][col] = true;
 }
