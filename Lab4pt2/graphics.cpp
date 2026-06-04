@@ -132,7 +132,8 @@ int main(void)
                 int col = (mouseX - startX) / cellSize;
                 int row = (mouseY - startY) / cellSize;
 
-                if (!game_logic.is_revealed(row, col))
+                if (!game_logic.is_revealed(row, col) &&
+                    !game_logic.is_matched(row, col))
                 {
                     game_logic.reveal(row, col);
 
@@ -154,11 +155,16 @@ int main(void)
                         al_rest(5.0);
 
                         // Hide cards if they do not match
-                        if (!game_logic.is_match(
+                        if (game_logic.is_match(
                             firstRow,
                             firstCol,
                             row,
                             col))
+                        {
+                            game_logic.set_matched(firstRow, firstCol);
+                            game_logic.set_matched(row, col);
+                        }
+                        else
                         {
                             game_logic.hide(firstRow, firstCol);
                             game_logic.hide(row, col);
@@ -347,6 +353,26 @@ void draw_all_shapes(logic& game_logic)
                 int centerY = startY + row * cellSize + cellSize / 2;
 
                 draw_shape(shape, centerX, centerY);
+                if (game_logic.is_matched(row, col))
+                {
+                    int s = 30;
+
+                    al_draw_line(
+                        centerX - s,
+                        centerY - s,
+                        centerX + s,
+                        centerY + s,
+                        al_map_rgb(255, 0, 0),
+                        3);
+
+                    al_draw_line(
+                        centerX + s,
+                        centerY - s,
+                        centerX - s,
+                        centerY + s,
+                        al_map_rgb(255, 0, 0),
+                        3);
+                }
             }
         }
     }
